@@ -6,6 +6,7 @@ import vuetify from '@/plugins/vuetify'
 import { store } from './store'
 import firebase from "./firestoreConfig"
 
+
 Vue.prototype.$axios = axios;
 Vue.config.productionTip = false
 
