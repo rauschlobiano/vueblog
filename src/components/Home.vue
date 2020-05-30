@@ -1,18 +1,23 @@
 <template>
     <div>   
         <v-row class="mx-auto" max-width="600">
-            <v-col class="mx-auto" cols="8">
+            <v-col class="mx-auto" cols="10">
                 <v-row>
-                    <v-col cols="8">
+                    <v-col cols="9">
                         <v-card >
+                            <div v-if="imageURL!=null">
+                                <v-img class="white--text align-end" :src="imageURL">
+                                </v-img>
+                            </div>
+                            <v-card-title>{{ title }}</v-card-title>
                             <v-card-text>
-                                <h1>Title</h1>
-                                <div class="mt-4 text-right">
-                                    <p>January 01 , 2020</p>
-                                </div>
-                                <div class="mt-4">
-                                    <p>Body asdf as df as d fa sdf </p>
-                                </div>
+                                
+                            <div class="mt-4 text-right">
+                                <p>{{date_created}}</p>
+                            </div>
+                            <div class="mt-4">
+                                <p>{{body}}</p>
+                            </div>
                             
                             </v-card-text>
                             <v-card-actions>
@@ -22,13 +27,13 @@
                             </v-card-actions>
                         </v-card>
                     </v-col>
-                    <v-col cols="4">
+                    <v-col cols="3">
                         <v-card >
                             <v-card-text>
                                 <h5>Posts</h5>                    
                             </v-card-text>    
 
-                            <v-list-item v-for="post in posts" :key="post.id">
+                            <v-list-item v-for="(post, i) in posts" :key="post.id" @click="loadPostDetails(i)">
                                 <v-list-item-content >
                                     <v-list-item-title> {{ post.title }}</v-list-item-title>
                                 </v-list-item-content>
@@ -54,24 +59,38 @@ export default {
     data: () => {
         return {
             posts: [],
+            title: '',
+            body: '',
+            date_created: '',
+            id: '',
+            imageURL: '',
         }
     },
     methods: {
+        loadPostDetails(index) {
+            
+            this.title = this.posts[index].title;
+            this.author = this.posts[index].author;
+            this.body = this.posts[index].body;
+            this.date_created = this.posts[index].date_created;
+            this.imageURL = this.posts[index].imageURL;
+        },
         getPosts() {
             db.collection("posts")
+            .orderBy("date_created", "desc")
             .get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
+            .then((res) => {
+                res.forEach((doc) => {
                 this.posts.push({
-                    author: doc.id,
+                    id: doc.id,
+                    author: doc.author,
                     body: doc.data().body,
                     date_created: doc.data().date_created,
                     title: doc.data().title,
+                    imageURL: doc.data().imageURL,
                     });
-                    console.log(doc.id, " => ", doc.data());
+                    
                 });
-                console.log(this.posts);
-                      
             })
             .catch((error) => {
                 console.log("Error getting documents: ", error);
