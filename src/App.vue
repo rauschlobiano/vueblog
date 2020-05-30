@@ -39,6 +39,8 @@ export default {
         this.userInfo = this.$store.state.userInfo;
       }
     })
+    console.log('from App.created');
+    
   },
 
   components: {

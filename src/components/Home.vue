@@ -6,14 +6,15 @@
                     <v-col cols="9">
                         <v-card >
                             <div v-if="imageURL!=null">
-                                <v-img class="white--text align-end" :src="imageURL">
+                                <v-img max-height="400px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
                                 </v-img>
                             </div>
                             <v-card-title>{{ title }}</v-card-title>
                             <v-card-text>
-                                
                             <div class="mt-4 text-right">
-                                <p>{{date_created}}</p>
+                                <p>{{author}} / {{date_created}}</p>
+                                                                
+                                
                             </div>
                             <div class="mt-4">
                                 <p>{{body}}</p>
@@ -29,8 +30,8 @@
                     </v-col>
                     <v-col cols="3">
                         <v-card >
-                            <v-card-text>
-                                <h5>Posts</h5>                    
+                            <v-card-text class="text-center">
+                                <h3>Recent Posts</h3>                    
                             </v-card-text>    
 
                             <v-list-item v-for="(post, i) in posts" :key="post.id" @click="loadPostDetails(i)">
@@ -55,6 +56,7 @@ export default {
     name: 'Home',
     created() {
         this.getPosts();
+
     },
     data: () => {
         return {
@@ -63,6 +65,7 @@ export default {
             body: '',
             date_created: '',
             id: '',
+            author: '',
             imageURL: '',
         }
     },
@@ -74,16 +77,18 @@ export default {
             this.body = this.posts[index].body;
             this.date_created = this.posts[index].date_created;
             this.imageURL = this.posts[index].imageURL;
+            this.author = this.posts[index].author;
         },
         getPosts() {
             db.collection("posts")
             .orderBy("date_created", "desc")
+            .limit(50)
             .get()
             .then((res) => {
                 res.forEach((doc) => {
                 this.posts.push({
                     id: doc.id,
-                    author: doc.author,
+                    author: doc.data().author,
                     body: doc.data().body,
                     date_created: doc.data().date_created,
                     title: doc.data().title,
@@ -91,6 +96,11 @@ export default {
                     });
                     
                 });
+                //open the latest post
+                if(this.posts.length > 0)
+                {
+                    this.loadPostDetails(0);
+                }
             })
             .catch((error) => {
                 console.log("Error getting documents: ", error);

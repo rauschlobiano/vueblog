@@ -4,24 +4,25 @@
            
            <v-col class="mx-auto" cols="11">
                <v-row>
-                <v-col cols="2">
+                <v-col cols="3">
                     <h3 class="mt-4">My Posts</h3>
 
-                    <v-list-item v-for="post in userPosts" :key="post.id">
+                    <v-list-item v-for="(post, i) in userPosts" :key="post.id" @click="loadPostDetails(i)">
                         <v-list-item-content >
                             <v-list-item-title> {{ post.title }}</v-list-item-title>
+                            <v-list-item-subtitle> {{ post.body }}</v-list-item-subtitle>
                         </v-list-item-content>
                     </v-list-item> 
                 </v-col>
-                <v-col cols="3">
-                    <v-date-picker v-model="date" color="green"></v-date-picker>
-                </v-col>
-
-                <v-col cols="7">
+                
+                <v-col cols="9">
                     <v-card :elevation="3">
                         <v-card-title>Create Post</v-card-title>
-                        <v-row>
-                            <v-col class="mx-auto mt-4" cols="10">
+                        <v-row class="mx-auto mt-4">                            
+                            <v-col cols="4">
+                                <v-date-picker v-model="date" color="green"></v-date-picker>
+                            </v-col>
+                            <v-col cols="8">
                                 <v-form ref="form">
                                     <v-text-field v-model="title"  label="Title" required></v-text-field>
                                     <v-textarea v-model="body" label="Body" auto-grow value="Type something awesome!"></v-textarea>
@@ -37,7 +38,7 @@
                                     </div>                                    
                                 </v-form>
                             </v-col>
-                        </v-row>
+                        </v-row>                            
                     </v-card>
                 </v-col>
                 </v-row>
@@ -62,6 +63,7 @@ export default {
             imageData: null,
             userPosts: [],
             uploadValue: 0,
+            author: '',
         }
     },
     computed: {
@@ -69,24 +71,50 @@ export default {
     },
 
     created() {
-        this.loadUserPosts();
+    },
+    mounted() {
+        
+        setTimeout(() => {
+            console.log(this.author);
+            
+            this.loadUserPosts();
+        }, 1000);    
     },
     
     methods: {
+        loadPostDetails(index) {
+            
+            this.title = this.posts[index].title;
+            this.author = this.posts[index].author;
+            this.body = this.posts[index].body;
+            this.date_created = this.posts[index].date_created;
+            this.imageURL = this.posts[index].imageURL;
+        },
         savePost() {
             this.saveImage();
         },
         insertPost() {
             db.collection("posts")
             .add({
-                author: this.$store.state.userInfo.email,
+                author: this.$store.state.userInfo.email,                
                 body: this.body,
                 date_created: this.date,
                 title: this.title,
                 imageURL: this.imageURL,
+                createdon: '',
+                updatedon: '',
                 })
-            .then(() => {
-                console.log("Post successfully written!");
+            .then((x) => {
+                console.log(x.id);
+                //update createdon
+                var toUpdate = db.collection('posts').doc(x.id);
+                console.log(toUpdate);
+                
+                var updated = toUpdate.update({
+                    createdon: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log(updated);
+                
             })
             .catch((error) => {
                 console.error("Error writing document: ", error);
@@ -122,6 +150,7 @@ export default {
         },
         loadUserPosts() {
             db.collection("posts")
+            .where("author","==",this.$store.state.userInfo.email)
             .get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
