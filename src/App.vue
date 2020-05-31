@@ -39,10 +39,10 @@ export default {
         this.loggedIn = this.$store.state.isLoggedIn;
         this.userInfo = this.$store.state.userInfo;
 
-        this.$store.dispatch('getPosts');
         
       }
     })
+    this.$store.dispatch('getPosts');
     console.log('from App.created');
     
   },
