@@ -13,18 +13,22 @@
                             <v-card-text>
                             <div class="mt-4 text-right">
                                 <p>{{author}} / {{date_created}}</p>
-                                                                
-                                
                             </div>
                             <div class="mt-4">
                                 <p>{{body}}</p>
                             </div>
                             
                             </v-card-text>
-                            <v-card-actions>
-                                <v-btn text color="deep-purple accent-4">
-                                    Share
+                            <v-card-actions>                               
+                                
+                                <v-btn color="primary" fab small dark>
+                                <v-icon>mdi-facebook</v-icon>                                
                                 </v-btn>
+                                
+                                <v-btn color="primary" fab small dark>
+                                <v-icon>mdi-twitter</v-icon>                                
+                                </v-btn>
+                            
                             </v-card-actions>
                         </v-card>
                     </v-col>
@@ -49,18 +53,28 @@
     </div>
 </template>
 <script>
-import firebase from "../firestoreConfig"
-const db = firebase.firestore();
+import { mapState } from 'vuex'
 
 export default {
     name: 'Home',
-    created() {
-        this.getPosts();
+    computed: {
+        ...mapState(['posts']),
+    },
+    mounted() {
+        
+        setTimeout(() => {
+            //load the latest post
+            if(this.posts.length > 0)
+            {
+                this.loadPostDetails(0);
+            }
 
+        }, 1000);
+        
     },
     data: () => {
         return {
-            posts: [],
+            //posts: [],
             title: '',
             body: '',
             date_created: '',
@@ -79,33 +93,7 @@ export default {
             this.imageURL = this.posts[index].imageURL;
             this.author = this.posts[index].author;
         },
-        getPosts() {
-            db.collection("posts")
-            .orderBy("date_created", "desc")
-            .limit(50)
-            .get()
-            .then((res) => {
-                res.forEach((doc) => {
-                this.posts.push({
-                    id: doc.id,
-                    author: doc.data().author,
-                    body: doc.data().body,
-                    date_created: doc.data().date_created,
-                    title: doc.data().title,
-                    imageURL: doc.data().imageURL,
-                    });
-                    
-                });
-                //open the latest post
-                if(this.posts.length > 0)
-                {
-                    this.loadPostDetails(0);
-                }
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
-        },
+        
     }
 
 }

@@ -35,8 +35,12 @@ export default {
         // this.userInfo.email = x.email;
         this.$store.commit('setIsLoggedIn', true);
         this.$store.commit('setUserInfo', user);
+        
         this.loggedIn = this.$store.state.isLoggedIn;
         this.userInfo = this.$store.state.userInfo;
+
+        this.$store.dispatch('getPosts');
+        
       }
     })
     console.log('from App.created');
