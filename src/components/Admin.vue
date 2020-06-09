@@ -62,7 +62,13 @@
                 </v-row>
            </v-col>
         </v-row>   
-        
+        <div class="text-center">
+            <v-snackbar v-model="snack_show" :timeout="snack_timeout" color="success">
+                
+                {{ snack_text }} 
+
+            </v-snackbar>
+        </div>
     </div>
 </template>
 <script>
@@ -81,6 +87,9 @@ export default {
             author: '',
             createdon: '',
             updatedon: '',
+            snack_show: false,
+            snack_text: 'Changes Saved',
+            snack_timeout: 1500,
 
             doing: 'creating',
             menu2: false,
@@ -175,7 +184,7 @@ export default {
                     console.log('done updating.');
                     this.saving = false;
                     this.loadUserPosts();
-
+                    this.snack_show = true;
                 })
                 .catch((error) => {
                     console.error("Error updating document: ", error);
