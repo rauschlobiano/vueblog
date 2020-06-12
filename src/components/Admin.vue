@@ -16,7 +16,7 @@
                 
                 <v-col cols="9">
                     <v-card :elevation="3">
-                        <v-card-title>Create New Post</v-card-title>
+                        <v-card-title>Post Details</v-card-title>
                         <v-row class="mx-auto mt-4"> 
                             <v-col cols="10" class="mx-auto">
                                 <v-form ref="form">
@@ -28,9 +28,31 @@
                                     </div>
 
                                     <div v-if="imageURL!=null || imageURL != ''">
-                                        <v-img max-height="300px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
-                                        </v-img>
+                                        <v-row>
+                                            <v-col cols="6">
+                                                <h3>Main Image</h3>
+                                                <v-img max-height="300px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
+                                                </v-img>
+                                            </v-col>                                            
+                                        </v-row>
+                                        <v-row>                                            
+                                            <h3>Sub Images</h3>                       
+                                        </v-row>
+                                        <v-row>
+                                            <v-col v-for="i in 5" :key="i">
+                                                <v-img max-height="200px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
+                                                </v-img>
+                                            </v-col>
+                                        </v-row>
                                     </div> 
+<!-- 
+                                   <v-row>
+                                       <v-carousel>
+                                            <v-carousel-item v-for="i in 5" :key="i" reverse-transition="fade" transition="fade" :src="imageURL">
+                                                     
+                                            </v-carousel-item>
+                                        </v-carousel>
+                                   </v-row> -->
                                     
                                     <div class="float-right ml-4">
                                         <v-menu v-model="menu2" :close-on-content-click="false"
@@ -51,9 +73,15 @@
                                         <p>Updated On: {{ updatedon }} </p>
                                     </div>  
 
-                                    <div class="text-right">
+                                    
+                                    <v-row>
                                         <v-btn color="success" class="text-right" @click="savePost">Save</v-btn>
-                                    </div> 
+                                        <div v-if="saving==true">
+                                            <v-progress-circular indeterminate color="primary"></v-progress-circular>                                        
+                                        </div> 
+
+                                    </v-row>
+                                    
                                 </v-form>
                             </v-col>
                         </v-row>                            
@@ -82,7 +110,8 @@ export default {
             title: '',
             body: '',
             date: new Date().toISOString().substr(0, 10),
-            imageURL: '',            
+            imageURL: '',
+            images: [],
             userPosts: [],            
             author: '',
             createdon: '',
@@ -155,6 +184,7 @@ export default {
         },
 
         savePost() {
+            this.saving = true;
             if(this.imageData!=null)   
             {
                 console.log('Saving with image.');                
@@ -168,6 +198,7 @@ export default {
         },
 
         insertPost() {
+            
             if(this.doing == "editing")
             {
                 db.collection("posts")
@@ -254,6 +285,9 @@ export default {
 <style scoped="">
 img.preview {
     width: 200px;
+}
+img {
+  max-width: 100%;
 }
 
 </style>

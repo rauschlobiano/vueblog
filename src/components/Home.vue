@@ -11,12 +11,12 @@
                             </div>
                             <v-card-title>{{ title }}</v-card-title>
                             <v-card-text>
-                            <div class="mt-4 text-right">
-                                <p>{{author}} / {{date_created}}</p>
-                            </div>
-                            <div class="mt-4">
-                                <p>{{body}}</p>
-                            </div>
+                                <div class="mt-4 text-right">
+                                    <p>{{author}} / {{date_created}}</p>
+                                </div>
+                                <div class="mt-4">
+                                    <v-textarea v-model="body" readonly auto-grow></v-textarea>
+                                </div>
                             
                             </v-card-text>
                             <v-card-actions>                               
