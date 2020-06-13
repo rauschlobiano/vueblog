@@ -186,6 +186,29 @@ export default {
                 });            
         },
 
+        saveImages() {
+            const storageRef=firebase.storage().ref('blogimages/'+`${this.imageData.name}`).put(this.imageData);
+            storageRef.on(`state_changed`,
+                snapshot => {
+                    this.uploadValue = (snapshot.bytesTransferred/snapshot.totalBytes)*100;
+                    //after image is uploaded
+                    if(this.uploadValue >= 100)
+                    {                                    
+                        storageRef.snapshot.ref.getDownloadURL()
+                        .then( url => {
+                            this.imageURL = url;                            
+                            this.insertPost();
+                        });
+                    }
+                }, 
+                error => {
+                    console.log(error.message)
+                },
+                () => {
+                    this.uploadValue=100;
+                });            
+        },
+
         savePost() {
             this.saving = true;
             if(this.imageData!=null)   
