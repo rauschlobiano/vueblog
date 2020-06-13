@@ -5,6 +5,7 @@ import About from '../components/About'
 import Admin from '../components/Admin'
 import Register from '../components/Register'
 import Login from '../components/Login'
+import Display from '../components/Display'
 
 import * as firebase from 'firebase/app';
 import 'firebase/auth';
@@ -19,6 +20,11 @@ const router =  new VueRouter({
             path: '/',
             name: 'home',
             component: Home
+        },
+        {
+            path: '/display',
+            name: 'display',
+            component: Display
         },
         {
             path: '/about',

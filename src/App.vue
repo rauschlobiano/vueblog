@@ -2,6 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <v-btn text to="/">Home</v-btn>
+      <v-btn text to="/display">Display</v-btn>
       <v-btn text to="/about">About</v-btn>
       <v-spacer></v-spacer>
 
