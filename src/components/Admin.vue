@@ -32,29 +32,22 @@
                                             <v-col cols="6">
                                                 <h3>Main Image</h3>
                                                 <v-img max-height="300px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
-                                                </v-img>
+                                                </v-img>                                                
                                             </v-col>                                            
                                         </v-row>
                                         <v-row>                                           
                                               
-                                            <v-file-input multiple label="Sub Images" prepend-icon="mdi-camera" v-model="pictures"></v-file-input>   
-                                            <v-btn @click="previewImages" >Upload</v-btn>               
+                                            <v-file-input label="Sub Images" prepend-icon="mdi-camera" v-model="subImageData" @change="addingSubImage"></v-file-input>   
+                                                        
                                         </v-row>
                                         <v-row>
-                                            <v-col v-for="i in pictures" :key="i.id">
-                                                <v-img max-height="200px" :aspect-ratio="16/9" :contain="true"  :src="i.src" >
+                                            <v-col v-for="i in subImageList" :key="i.url">
+                                                <v-img max-height="200px" :aspect-ratio="16/9" :contain="true"  :src="i.url" >
                                                 </v-img>
                                             </v-col>
                                         </v-row>
                                     </div> 
-<!-- 
-                                   <v-row>
-                                       <v-carousel>
-                                            <v-carousel-item v-for="i in 5" :key="i" reverse-transition="fade" transition="fade" :src="imageURL">
-                                                     
-                                            </v-carousel-item>
-                                        </v-carousel>
-                                   </v-row> -->
+
                                     
                                     <div class="float-right ml-4">
                                         <v-menu v-model="menu2" :close-on-content-click="false"
@@ -125,11 +118,13 @@ export default {
             doing: 'creating',
             menu2: false,
             saving: false,
-            picture: null,
-            pictures: null,
+            picture: null,            
             imageData: null,
+            subImageData: null,
+            subImageList: [],
             uploadValue: 0,
             editid: '',
+            editedimage: false,
         }
     },
     computed: {
@@ -160,7 +155,7 @@ export default {
             this.updatedon = this.userPosts[index].updatedon;   
             this.editid = this.userPosts[index].id;
             
-            console.log(this.editid);
+            console.log(this.imageURL);
         },
 
         saveImage() {
@@ -186,41 +181,74 @@ export default {
                 });            
         },
 
-        saveImages() {
-            const storageRef=firebase.storage().ref('blogimages/'+`${this.imageData.name}`).put(this.imageData);
-            storageRef.on(`state_changed`,
-                snapshot => {
-                    this.uploadValue = (snapshot.bytesTransferred/snapshot.totalBytes)*100;
-                    //after image is uploaded
-                    if(this.uploadValue >= 100)
-                    {                                    
-                        storageRef.snapshot.ref.getDownloadURL()
-                        .then( url => {
-                            this.imageURL = url;                            
-                            this.insertPost();
-                        });
-                    }
-                }, 
-                error => {
-                    console.log(error.message)
-                },
-                () => {
-                    this.uploadValue=100;
-                });            
+        deleteOldImage() {
+            
+           const img = firebase.storage().refFromURL('');
+           console.log(img);
+           
+           // Delete the file
+            img.delete().then(function() {
+            console.log('Image deleted ' + img);
+            
+            }).catch(function(error) {
+            console.log(error);
+            
+            });           
         },
 
         savePost() {
             this.saving = true;
             if(this.imageData!=null)   
             {
+                
+                console.log('Deleting old image.');                    
+                this.deleteOldImage();
+               
                 console.log('Saving with image.');                
-                this.saveImage();
-            }        
+                this.saveImage();                
+            }     
             else
             {
                 console.log('without image.');
                 this.insertPost();
             }           
+        },
+
+        addingSubImage() {
+            var d = this.subImageData;
+            console.log(this.subImageData);
+            
+            const storageRef = firebase.storage().ref('blogsubimages/'+ d.name ).put(d);
+                storageRef.on(`state_changed`,
+                    snapshot => {                                                          
+                        storageRef.snapshot.ref.getDownloadURL()
+                        .then( url => {
+                            var newImage = {
+                                url: url,
+                                snapshot: snapshot
+                            };
+                            this.subImageList.push(newImage);
+                            console.log(this.subImageList);
+                            
+                            //update the post
+                            db.collection("posts")
+                                .doc(this.editid)
+                                .set({
+                                    subImages: this.subImageList,            
+                                    updatedon: new Date()
+                                    })
+                                .then(() => {                
+                                    console.log('done updating.');
+                                })
+                                .catch((error) => {
+                                    console.error("Error updating document: ", error);
+                                });  
+                        });                       
+                    }, 
+                    error => {
+                        console.log(error.message)
+                    },
+                );                    
         },
 
         insertPost() {
@@ -279,10 +307,10 @@ export default {
             this.picture=null;
             this.imageData = event.target.files[0];
             this.imageURL = URL.createObjectURL(this.imageData);
-        },
-
-        previewImages() {
-            console.log(this.pictures);
+            if(this.doing == 'editing')
+            {
+                this.editedimage = true;
+            }
         },
 
         loadUserPosts() {
