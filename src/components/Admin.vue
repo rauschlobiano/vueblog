@@ -35,12 +35,14 @@
                                                 </v-img>
                                             </v-col>                                            
                                         </v-row>
-                                        <v-row>                                            
-                                            <h3>Sub Images</h3>                       
+                                        <v-row>                                           
+                                              
+                                            <v-file-input multiple label="Sub Images" prepend-icon="mdi-camera" v-model="pictures"></v-file-input>   
+                                            <v-btn @click="previewImages" >Upload</v-btn>               
                                         </v-row>
                                         <v-row>
-                                            <v-col v-for="i in 5" :key="i">
-                                                <v-img max-height="200px" :aspect-ratio="16/9" :contain="true"  :src="imageURL" >
+                                            <v-col v-for="i in pictures" :key="i.id">
+                                                <v-img max-height="200px" :aspect-ratio="16/9" :contain="true"  :src="i.src" >
                                                 </v-img>
                                             </v-col>
                                         </v-row>
@@ -124,6 +126,7 @@ export default {
             menu2: false,
             saving: false,
             picture: null,
+            pictures: null,
             imageData: null,
             uploadValue: 0,
             editid: '',
@@ -254,6 +257,11 @@ export default {
             this.imageData = event.target.files[0];
             this.imageURL = URL.createObjectURL(this.imageData);
         },
+
+        previewImages() {
+            console.log(this.pictures);
+        },
+
         loadUserPosts() {
             //clear list first
             this.userPosts = [];
